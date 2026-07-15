@@ -34,11 +34,3 @@ jobs:
           EMAIL_TO:          ${{ secrets.EMAIL_TO }}
           SENDGRID_API_KEY:   ${{ secrets.SENDGRID_API_KEY }}
         run: python fetch_intel.py
-
-      - name: Commit updated feed
-        run: |
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add intel_feed.json
-          git diff --staged --quiet || git commit -m "chore: intel feed $(date -u '+%Y-%m-%d')"
-          git push
