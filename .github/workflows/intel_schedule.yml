@@ -1,0 +1,44 @@
+name: Intel Feed
+
+on:
+  schedule:
+    - cron: "0 13 * * 1"   # Monday    9:00 AM ET (UTC-4) — once weekly
+  workflow_dispatch:         # manual trigger from GitHub UI
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  fetch-intel:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run intel fetch
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          EMAIL_FROM:        ${{ secrets.EMAIL_FROM }}
+          EMAIL_TO:          ${{ secrets.EMAIL_TO }}
+          SENDGRID_API_KEY:   ${{ secrets.SENDGRID_API_KEY }}
+        run: python fetch_intel.py
+
+      - name: Commit updated feed
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add intel_feed.json
+          git diff --staged --quiet || git commit -m "chore: intel feed $(date -u '+%Y-%m-%d')"
+          git push
