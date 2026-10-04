@@ -207,6 +207,12 @@ details[open] summary::after { content: " –"; }
 .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
 .dot.c { background: var(--warn); }
 .dot.b { background: var(--line); border: 1.5px solid var(--muted); }
+.ofilters { display: grid; gap: 8px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.frow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.frow .flabel { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; width: 64px; flex: none; }
+.chip.sm { padding: 3px 9px; font-size: 12.5px; }
+.osum { font-size: 12.5px; color: var(--muted); }
+.osum .num { color: var(--ink); font-weight: 700; }
 .legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); }
 
 @media (max-width: 960px) {
@@ -252,6 +258,28 @@ details[open] summary::after { content: " –"; }
       <div class="panel">
         <div class="panel-head"><h2>Recent opens</h2>
           <div class="legend"><span><span class="dot c"></span>Counts toward 5/24</span><span><span class="dot b"></span>Doesn't count</span></div>
+        </div>
+        <div class="ofilters" id="ofilters">
+          <div class="frow" data-k="who"><span class="flabel">Who</span></div>
+          <div class="frow" data-k="counts"><span class="flabel">5/24</span>
+            <button type="button" class="chip sm" data-v="yes" aria-pressed="false">Counts</button>
+            <button type="button" class="chip sm" data-v="no" aria-pressed="false">Doesn't count</button></div>
+          <div class="frow" data-k="type"><span class="flabel">Type</span>
+            <button type="button" class="chip sm" data-v="personal" aria-pressed="false">Personal</button>
+            <button type="button" class="chip sm" data-v="business" aria-pressed="false">Business</button></div>
+          <div class="frow" data-k="net"><span class="flabel">Network</span>
+            <button type="button" class="chip sm" data-v="visa" aria-pressed="false">Visa</button>
+            <button type="button" class="chip sm" data-v="mastercard" aria-pressed="false">Mastercard</button>
+            <button type="button" class="chip sm" data-v="amex" aria-pressed="false">Amex</button>
+            <button type="button" class="chip sm" data-v="store" aria-pressed="false">Store</button></div>
+          <div class="frow" data-k="status"><span class="flabel">Status</span>
+            <button type="button" class="chip sm" data-v="open" aria-pressed="false">Open</button>
+            <button type="button" class="chip sm" data-v="closed" aria-pressed="false">Closed / changed</button>
+            <button type="button" class="chip sm" data-v="denied" aria-pressed="false">Denied</button></div>
+          <div class="frow" data-k="window"><span class="flabel">Window</span>
+            <button type="button" class="chip sm" data-v="24" aria-pressed="false">Last 24 months</button>
+            <button type="button" class="chip sm" data-v="12" aria-pressed="false">Last 12 months</button></div>
+          <div class="osum" id="osum"></div>
         </div>
         <div class="open-list" id="opens"></div>
       </div>
@@ -372,11 +400,11 @@ function netMark(net, h = 26) {
   if (net === "mastercard") return `<span class="netmark mc">${MC_SVG(h)}</span>`;
   if (net === "visa") return `<span class="netmark visa" aria-label="Visa">VISA</span>`;
   if (net === "amex") return `<span class="netmark amex" aria-label="American Express">AMEX</span>`;
-  return `<span class="netmark none">store</span>`;
+  return `<span class="netmark none">Store</span>`;
 }
 // Networks for cards you already hold (by issuer and product).
 function heldNetwork(o) {
-  if (o.network) return o.network;
+  if (o.network) return o.network === "store" ? null : o.network;
   if (o.issuer === "Amex") return "amex";
   if (/AAdvantage|IHG/.test(o.product) && o.issuer !== "Amex") return "mastercard";
   if (o.issuer === "Synchrony") return null;
@@ -581,19 +609,53 @@ function card({ o, v, perMo, ros }, i) {
     </div>`;
   }).join("");
 
-  document.getElementById("opens").innerHTML = (DATA.opens || []).slice(0, 14).map(o => {
-    const dim = ["closed", "denied", "product_changed"].includes(o.status);
-    const stTxt = { closed: "Closed", denied: "Denied", product_changed: "Product changed", open: "Open" }[o.status] || o.status;
+})();
+
+/* ── Recent opens with filters ── */
+const OF_DEFAULT = { who: [], counts: [], type: [], net: [], status: [], window: ["24"] };
+let OF = JSON.parse(JSON.stringify(OF_DEFAULT));
+try { const s = JSON.parse(localStorage.getItem("ccf-opens") || "null"); if (s) OF = { ...OF, ...s }; } catch (e) {}
+document.querySelector('#ofilters [data-k="who"]').insertAdjacentHTML("beforeend",
+  PEOPLE.map(p => `<button type="button" class="chip sm" data-v="${p}" aria-pressed="false">${cap(p)}</button>`).join(""));
+document.getElementById("ofilters").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const k = b.closest(".frow").dataset.k, v = b.dataset.v;
+  if (k === "window") OF.window = OF.window.includes(v) ? [] : [v];
+  else OF[k] = OF[k].includes(v) ? OF[k].filter(x => x !== v) : [...OF[k], v];
+  renderOpens();
+});
+function statusGroup(s) { return s === "open" ? "open" : s === "denied" ? "denied" : "closed"; }
+function renderOpens() {
+  try { localStorage.setItem("ccf-opens", JSON.stringify(OF)); } catch (e) {}
+  document.querySelectorAll("#ofilters .frow").forEach(r => r.querySelectorAll("button").forEach(b =>
+    b.setAttribute("aria-pressed", OF[r.dataset.k].includes(b.dataset.v))));
+  const all = DATA.opens || [];
+  const rows = all.filter(o => {
+    const net = o.status === "denied" ? null : (heldNetwork(o) || "store");
+    if (OF.who.length && !OF.who.includes(o.person)) return false;
+    if (OF.counts.length && !OF.counts.includes(o.counts ? "yes" : "no")) return false;
+    if (OF.type.length && !OF.type.includes(o.type)) return false;
+    if (OF.net.length && !OF.net.includes(net)) return false;
+    if (OF.status.length && !OF.status.includes(statusGroup(o.status))) return false;
+    if (OF.window.length && -days(o.date) > +OF.window[0] * 30.44) return false;
+    return true;
+  });
+  const counting = rows.filter(o => o.counts && -days(o.date) <= 730.5).length;
+  document.getElementById("osum").innerHTML = `Showing <span class="num">${rows.length}</span> of ${all.length} · <span class="num">${counting}</span> of these count toward 5/24 right now`;
+  const stTxt = { closed: "Closed", denied: "Denied", product_changed: "Product changed", open: "Open" };
+  document.getElementById("opens").innerHTML = rows.map(o => {
+    const dim = statusGroup(o.status) !== "open";
     const net = o.status === "denied" ? "" : heldNetwork(o);
     return `<div class="open${dim ? " dim" : ""} mini">
       <span class="d">${fmtD(o.date)}</span>
       <span class="p">${cap(o.person)}</span>
       <span class="nm"><span class="dot ${o.counts ? "c" : "b"}"></span>${esc(o.issuer)} ${esc(o.product.replace(/\s*\(.*\)/, ""))}${o.au ? " (AU)" : ""}
-        <small>${cap(o.type)} · ${stTxt}${o.note ? " · " + esc(o.note) : ""}</small></span>
+        <small>${cap(o.type)} · ${stTxt[o.status] || esc(o.status)}${o.note ? " · " + esc(o.note) : ""}</small></span>
       ${net ? netMark(net, 14) : `<span class="netmark none">—</span>`}
     </div>`;
-  }).join("");
-})();
+  }).join("") || `<p class="osum">No cards match these filters.</p>`;
+}
 
+renderOpens();
 render();
 </script>

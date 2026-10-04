@@ -64,13 +64,13 @@ def opens_data(profile: dict, cards, on: date) -> list[dict]:
     out = []
     for raw, c in zip(profile.get("cards", []), cards):
         when = c.opened or c.applied
-        if not when or when < on - timedelta(days=730):
+        if not when:
             continue
         out.append(dict(date=when.isoformat(), person=c.person, issuer=c.issuer,
                         product=c.product, type=c.type, status=c.status,
                         counts=c.counts_toward_5_24(), au=c.authorized_user,
-                        network=raw.get("network"), note=raw.get("notes", "")
-                        if c.authorized_user else ""))
+                        network=raw.get("network"),
+                        note=raw.get("notes", "") if c.authorized_user else ""))
     return sorted(out, key=lambda o: o["date"], reverse=True)
 
 
