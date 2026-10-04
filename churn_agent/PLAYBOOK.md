@@ -10,10 +10,20 @@ Follow these steps in order.
 
 ## 0. Setup
 
+The code lives in two places:
+
+1. **Git:** `git fetch origin claude/credit-card-churning-agent-20hyya && git checkout claude/credit-card-churning-agent-20hyya`
+2. **Drive fallback:** if the branch isn't reachable, download `engine.py`,
+   `offers.yaml`, and `PLAYBOOK.md` from the Churn Agent Drive folder into
+   `churn_agent/` and create an empty `churn_agent/__init__.py`. If the folder
+   has several `offers.yaml` files, use the newest. Skip the pytest step if the
+   tests aren't present.
+
+Either way, if the Drive folder has an `offers.yaml`, use the newest one in
+place of the repo copy, because the weekly refreshes are saved there.
+
 ```bash
-git fetch origin claude/credit-card-churning-agent-20hyya
-git checkout claude/credit-card-churning-agent-20hyya
-pip install -q pyyaml
+pip install -q pyyaml pytest
 TODAY=$(TZ=America/New_York date +%F)
 ```
 
@@ -69,7 +79,7 @@ Then look for new opportunities:
 ```bash
 python -m churn_agent.engine --as-of $TODAY > /tmp/engine.md
 python -m churn_agent.engine --as-of $TODAY --format json > /tmp/engine.json
-python -m pytest -q churn_agent   # sanity-check the rules still pass
+python -m pytest -q churn_agent   # if tests are present: sanity-check the rules
 ```
 
 The engine handles 5/24 counts and drop-off dates, issuer rules (Chase 5/24 and
@@ -122,6 +132,8 @@ Keep it to one screen of tight bullets plus the table.
   `churn_agent_profile.yaml` in the same Drive folder. The connector can't
   overwrite files, and the newest file wins next week. Don't delete older
   copies, because they're the history. Say what changed in one line.
+- Save the refreshed `offers.yaml` as a new `offers.yaml` in the Drive folder
+  (the newest wins), so next week starts from verified numbers.
 - Never commit `profile.yaml` or the reports, because the repo is public. If git
   push is permitted, you may commit the refreshed `churn_agent/offers.yaml`
   (public offer data only) to `claude/credit-card-churning-agent-20hyya` with the
