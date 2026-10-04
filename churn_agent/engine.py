@@ -391,7 +391,10 @@ def _score_at(o, person, cards, profile, on, when) -> dict:
 
 
 def rank_offers(profile: dict, offers: list[dict], on: date,
-                cards: list[Card] | None = None) -> list[Ranked]:
+                cards: list[Card] | None = None, all_types: bool = False) -> list[Ranked]:
+    """Rank every offer for every person. all_types=True ignores the card-type
+    preferences (card_types, business cards that report to personal credit) so
+    the dashboard can show them and let its filters decide."""
     cards = cards if cards is not None else load_cards(profile)
     people = list(profile.get("people", {}).keys())
     out = []
@@ -400,12 +403,12 @@ def rank_offers(profile: dict, offers: list[dict], on: date,
             r = Ranked(offer_id=o["id"], person=person, product=o["product"],
                        issuer=o["issuer"], earliest=None, net_value=0, score=0,
                        feasibility=0, plastiq_fee=0, verified=str(o.get("last_verified") or "") or None)
-            if o.get("reports_personal") and o.get("type") == "business":
+            if not all_types and o.get("reports_personal") and o.get("type") == "business":
                 r.blocked_now = ["Excluded by preference: business card reports to personal credit"]
                 out.append(r)
                 continue
             allowed = profile.get("card_types")
-            if allowed and o.get("type", "personal") not in allowed:
+            if not all_types and allowed and o.get("type", "personal") not in allowed:
                 r.blocked_now = [f"Excluded by preference: {o.get('type', 'personal')} card (tracking {', '.join(allowed)} only)"]
                 out.append(r)
                 continue

@@ -98,3 +98,13 @@ def test_dashboard_builds_from_example_profile():
     from churn_agent import build_dashboard
     html = build_dashboard.build(PROFILE, {"offers": list(OFFERS.values())}, date(2026, 10, 4))
     assert "__DATA__" not in html and '"people":["alex","sam"]' in html
+
+
+def test_all_types_ranks_personal_and_reporting_business_cards():
+    profile = dict(PROFILE, card_types=["business"])
+    offers = [OFFERS["chase_aeroplan"], OFFERS["c1_venture_x_business"]]
+    default = engine.rank_offers(profile, offers, date(2026, 10, 4))
+    assert all("preference" in r.blocked_now[0] for r in default)
+    everything = engine.rank_offers(profile, offers, date(2026, 10, 4), all_types=True)
+    assert not any("card (tracking" in b or "reports to personal" in b
+                   for r in everything for b in r.blocked_now)

@@ -33,7 +33,7 @@ def _progress(start: date, end: date, on: date) -> float:
 
 
 def offers_data(profile: dict, offers: list[dict], on: date, cards) -> list[dict]:
-    ranked = e.rank_offers(profile, offers, on, cards)
+    ranked = e.rank_offers(profile, offers, on, cards, all_types=True)
     by_id: dict[str, dict] = {}
     for r in ranked:
         by_id.setdefault(r.offer_id, {})[r.person] = dict(
@@ -54,7 +54,7 @@ def offers_data(profile: dict, offers: list[dict], on: date, cards) -> list[dict
             af1=o.get("af_first_year", 0), af=o.get("af_ongoing", 0), url=o.get("url"),
             verified=str(o["last_verified"]) if o.get("last_verified") else None,
             source=o.get("source"), notes=o.get("notes", ""),
-            reportsPersonal=bool(o.get("reports_personal")),
+            reportsPersonal=bool(o.get("reports_personal")) or o.get("type", "personal") == "personal",
             goals=[g["where"] for g in profile.get("travel_goals", []) if cur in g.get("programs", [])],
             people=by_id.get(o["id"], {})))
     return out
