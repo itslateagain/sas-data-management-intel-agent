@@ -31,6 +31,11 @@ is only a structured snapshot of them.
 - Download the profile to `churn_agent/profile.yaml`. If the folder holds more
   than one `churn_agent_profile.yaml`, use the most recently modified one. That path is gitignored,
   so never commit it, because this repo is public.
+- If the Routine prompt names a credit-report folder, read the newest report
+  in it. Bureau reports are the most reliable source for personal-card open
+  dates, hard inquiries, and authorized-user status. Use them to correct
+  `opened` dates (and `action_by` fee deadlines that depend on them). Never copy
+  account numbers, SSN digits, addresses, or dates of birth.
 - Read the Sheet with `download_file_content` (CSV export; the rendered reader truncates it) and the Doc with `read_file_content`.
 - Reconcile them with `churn_agent/profile.yaml` and update your working copy:
   - new applications, approvals, denials, closures, and product changes
