@@ -2,3 +2,6 @@
 __pycache__/
 *.pyc
 intel_feed.json
+# churn agent: personal data lives in Google Drive, never in this public repo
+churn_agent/profile.yaml
+churn_agent/reports/*.md

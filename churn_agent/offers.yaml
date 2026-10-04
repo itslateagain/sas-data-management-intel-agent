@@ -1,0 +1,281 @@
+# Candidate cards the agent tracks and ranks.
+#
+# The weekly run re-verifies every entry against the issuer's page (or, when
+# the issuer site is blocked, against at least one recent secondary source
+# such as Doctor of Credit / TPG / issuer press release), updates the numbers
+# below in its working copy, sets last_verified + source, and adds any new
+# elevated offer worth considering.
+#
+# last_verified: null  → seed value from the plan doc or memory; NOT confirmed.
+#
+# Fields
+#   currency        key into profile.valuations_cpp (cash = dollars)
+#   bonus_points    points/miles (use 0 for pure-cash offers)
+#   bonus_cash      dollars
+#   extra_value     statement credits etc. you'd actually use in year one
+#   msr / msr_months  minimum spend and window
+#   af_first_year   fee charged in year one (0 if waived)
+#   reports_personal  business card that shows on personal reports (Cap One etc.)
+#   family / tier   used for issuer once-per-lifetime / family rules
+#   for             restrict to people (omit = anyone)
+
+offers:
+  - id: us_bank_triple_cash_business
+    issuer: US Bank
+    product: Business Triple Cash Rewards
+    type: business
+    network: visa
+    family: usb_triple_cash
+    currency: cash
+    bonus_points: 0
+    bonus_cash: 750
+    msr: 6000
+    msr_months: 6
+    af_first_year: 0
+    af_ongoing: 0
+    url: https://www.usbank.com/business-banking/business-credit-cards/triple-cash-back-business-credit-card.html
+    last_verified: 2026-10-03
+    source: "Churning Plays doc, Q4-26 plan (offer as of 10/3/26)"
+    notes: "Check foreign transaction fee before using abroad. US Bank is inquiry-sensitive — apply first in a batch."
+
+  - id: chase_united_business
+    issuer: Chase
+    product: United Business
+    type: business
+    network: visa
+    family: united_business
+    currency: United
+    bonus_points: 100000
+    bonus_cash: 0
+    extra_value: 0
+    msr: 5000
+    msr_months: 3
+    af_first_year: 150
+    af_ongoing: 150
+    url: https://www.theexplorercard.com/business-card
+    last_verified: 2026-10-04
+    source: "TPG / CNBC Select (Oct 2026): 90K + 2,000 PQP after $5K/3mo, +10K for adding an employee card"
+    notes: "Bonus not available if received a United Business bonus in past 24 months. No FTF. Add a household member as an employee card for +10K."
+
+  - id: citi_aa_business
+    issuer: Citi
+    product: AAdvantage Business World Elite Mastercard
+    type: business
+    network: mastercard
+    family: aa_citi_business
+    currency: AA
+    bonus_points: 65000
+    bonus_cash: 0
+    msr: 4000
+    msr_months: 4
+    af_first_year: 0
+    af_ongoing: 99
+    url: https://www.citi.com/credit-cards/citi-aadvantage-business-world-elite-mastercard
+    last_verified: 2026-10-03
+    source: "Churning Plays doc, Q4-26 plan (offer as of 10/3/26)"
+    notes: "Mastercard → Plastiq mortgage-fundable."
+
+  - id: chase_aeroplan
+    issuer: Chase
+    product: Aeroplan Card
+    type: personal
+    network: visa
+    family: aeroplan_chase
+    currency: Aeroplan
+    bonus_points: 75000
+    bonus_cash: 0
+    msr: 3000
+    msr_months: 3
+    af_first_year: 95
+    af_ongoing: 95
+    url: https://creditcards.chase.com/travel-credit-cards/aeroplan-card
+    last_verified: null
+    source: "Seed from older pipeline (75K tier) — verify"
+    notes: "Personal card: burns a 5/24 slot."
+
+  - id: chase_ink_business_cash
+    issuer: Chase
+    product: Ink Business Cash
+    type: business
+    network: visa
+    family: ink_cash
+    currency: UR
+    bonus_points: 75000
+    bonus_cash: 0
+    msr: 6000
+    msr_months: 3
+    af_first_year: 0
+    af_ongoing: 0
+    url: https://creditcards.chase.com/business-credit-cards/ink/cash
+    last_verified: null
+    source: "Seed — verify"
+    notes: "Pairs with a UR-transferring card for full value. Chase velocity is the main risk."
+
+  - id: chase_ihg_business
+    issuer: Chase
+    product: IHG One Rewards Premier Business
+    type: business
+    network: mastercard
+    family: ihg_business
+    currency: IHG
+    bonus_points: 140000
+    bonus_cash: 0
+    msr: 4000
+    msr_months: 3
+    af_first_year: 99
+    af_ongoing: 99
+    url: https://creditcards.chase.com/business-credit-cards/ihg-business-card
+    last_verified: null
+    source: "Seed — verify"
+    notes: "Mastercard → Plastiq-eligible."
+
+  - id: barclays_jetblue_business
+    issuer: Barclays
+    product: JetBlue Business
+    type: business
+    network: mastercard
+    family: jetblue_business
+    currency: JetBlue
+    bonus_points: 50000
+    bonus_cash: 0
+    msr: 1000
+    msr_months: 3
+    af_first_year: 99
+    af_ongoing: 99
+    url: https://cards.barclaycardus.com/banking/cards/jetblue-business-card/
+    last_verified: null
+    source: "Seed from pipeline (50K target) — verify"
+    notes: "Boston + Caribbean. Watch for elevated offers (historically 60-100K)."
+
+  - id: citi_strata_premier
+    issuer: Citi
+    product: Strata Premier
+    type: personal
+    network: mastercard
+    family: citi_ty_premier
+    currency: TY
+    bonus_points: 60000
+    bonus_cash: 0
+    msr: 4000
+    msr_months: 3
+    af_first_year: 95
+    af_ongoing: 95
+    url: https://www.citi.com/credit-cards/citi-strata-premier-credit-card
+    last_verified: null
+    source: "Seed from pipeline (60K+) — verify"
+    notes: "Personal card: burns a 5/24 slot. Turkish transfer for Italy."
+
+  - id: amex_business_platinum
+    issuer: Amex
+    product: Business Platinum
+    type: business
+    network: amex
+    family: amex_business_platinum
+    currency: MR
+    bonus_points: 250000
+    bonus_cash: 0
+    extra_value: 400
+    msr: 20000
+    msr_months: 3
+    af_first_year: 895
+    af_ongoing: 895
+    url: https://www.americanexpress.com/us/credit-cards/business/business-credit-cards/american-express-business-platinum-credit-card-amex/
+    last_verified: null
+    source: "Seed from pipeline (~250K MR) — verify; often targeted / via referral"
+    notes: "Large MSR — needs a big-spend window. extra_value = credits you'd realistically use."
+
+  - id: amex_delta_platinum_business
+    issuer: Amex
+    product: Delta SkyMiles Platinum Business
+    type: business
+    network: amex
+    family: delta_amex_business
+    tier: 2
+    currency: Delta
+    bonus_points: 90000
+    bonus_cash: 0
+    msr: 6000
+    msr_months: 6
+    af_first_year: 350
+    af_ongoing: 350
+    url: https://www.americanexpress.com/en-us/business/credit-cards/delta-skymiles-platinum/
+    last_verified: null
+    source: "Seed — verify"
+    notes: "Amex Delta family rule: holding a lower tier doesn't block a higher one."
+
+  - id: amex_hilton_business
+    issuer: Amex
+    product: Hilton Honors Business
+    type: business
+    network: amex
+    family: hilton_amex_business
+    currency: Hilton
+    bonus_points: 175000
+    bonus_cash: 0
+    msr: 8000
+    msr_months: 6
+    af_first_year: 195
+    af_ongoing: 195
+    url: https://www.americanexpress.com/us/credit-cards/business/business-credit-cards/hilton-honors-business-credit-card/
+    last_verified: null
+    source: "Seed — verify"
+
+  - id: bofa_alaska_business
+    issuer: BofA
+    product: Alaska Airlines Visa Business
+    type: business
+    network: visa
+    family: alaska_business
+    currency: Alaska
+    bonus_points: 70000
+    bonus_cash: 0
+    extra_value: 100
+    msr: 4000
+    msr_months: 3
+    af_first_year: 95
+    af_ongoing: 95
+    url: https://www.bankofamerica.com/smallbusiness/credit-cards/products/alaska-airlines-business-credit-card/
+    last_verified: null
+    source: "Seed — verify"
+    notes: "oneworld partner (Japan/Australia via JAL/Qantas). BofA 2/3/4 rule."
+
+  - id: chase_southwest_business
+    issuer: Chase
+    product: Southwest Rapid Rewards Premier Business
+    type: business
+    network: visa
+    family: southwest_business
+    currency: Southwest
+    bonus_points: 60000
+    bonus_cash: 0
+    msr: 3000
+    msr_months: 3
+    af_first_year: 99
+    af_ongoing: 99
+    url: https://creditcards.chase.com/business-credit-cards/southwest/premier
+    last_verified: null
+    source: "Seed — verify"
+
+  - id: c1_venture_x_business
+    issuer: Capital One
+    product: Venture X Business
+    type: business
+    network: visa
+    family: c1_venture_x_business
+    reports_personal: true
+    currency: C1
+    bonus_points: 150000
+    bonus_cash: 0
+    msr: 30000
+    msr_months: 3
+    af_first_year: 395
+    af_ongoing: 395
+    url: https://www.capitalone.com/small-business/credit-cards/venture-x-business/
+    last_verified: null
+    source: "Seed — verify"
+    notes: "Tracked for completeness; excluded by preference (reports to personal credit, counts toward 5/24)."
+
+# Bank / brokerage bonuses for idle capital. Ranked separately on net
+# annualized return vs. the opportunity_cost_apy benchmark.
+# Fields: bonus_cash, capital, hold_days, base_apy, for (optional).
+bank_offers: []
