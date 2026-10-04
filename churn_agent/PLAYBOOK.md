@@ -58,7 +58,7 @@ send, reply, label, archive or delete anything.
 | Aeroplan | `from:mail.aircanada.com` | "N pts" in the snippet |
 | United, Marriott, Chase UR, Alaska, JetBlue, Flying Blue | sender domain + "statement" OR "balance" | as shown |
 
-- The emails go to both Mark's and Hope's addresses, so match the recipient to the person.
+- Emails may arrive for each person in the household, so match the recipient to the person.
 - Large emails are saved to a file. Parse the `htmlBody` with Python instead of reading it whole.
 - If no new number turns up, keep the old one and set `stale: true` once it's more than 60 days old.
 - Also watch for: approvals, denials, cancellations ("cancellation request has been processed"),
