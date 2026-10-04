@@ -34,8 +34,8 @@ offers:
     af_first_year: 0
     af_ongoing: 0
     url: https://www.usbank.com/business-banking/business-credit-cards/triple-cash-back-business-credit-card.html
-    last_verified: 2026-10-03
-    source: "Churning Plays doc, Q4-26 plan (offer as of 10/3/26)"
+    last_verified: 2026-10-04
+    source: "https://www.uscreditcardguide.com/us-bank-business-cash-credit-card/ (secondary): $750 after $6K in 180 days, $0 AF"
     notes: "Check foreign transaction fee before using abroad. US Bank is inquiry-sensitive — apply first in a batch."
 
   - id: chase_united_business
@@ -71,8 +71,8 @@ offers:
     af_first_year: 0
     af_ongoing: 99
     url: https://www.citi.com/credit-cards/citi-aadvantage-business-world-elite-mastercard
-    last_verified: 2026-10-03
-    source: "Churning Plays doc, Q4-26 plan (offer as of 10/3/26)"
+    last_verified: 2026-10-04
+    source: "https://onemileatatime.com/reviews/credit-cards/citi/citi-american-aadvantage-business-card/ (secondary): 65K after $4K in 4 months, $99 AF waived year 1"
     notes: "Mastercard → Plastiq mortgage-fundable."
 
   - id: chase_aeroplan
@@ -84,14 +84,14 @@ offers:
     currency: Aeroplan
     bonus_points: 75000
     bonus_cash: 0
-    msr: 3000
+    msr: 4000
     msr_months: 3
-    af_first_year: 95
-    af_ongoing: 95
+    af_first_year: 195
+    af_ongoing: 195
     url: https://creditcards.chase.com/travel-credit-cards/aeroplan-card
-    last_verified: null
-    source: "Seed from older pipeline (75K tier) — verify"
-    notes: "Personal card: burns a 5/24 slot."
+    last_verified: 2026-10-04
+    source: "https://upgradedpoints.com/news/refreshed-chase-aeroplan-card-2026/ (secondary): card refreshed 2026-09-10; 75K after $4K/3mo + 40K more after $20K in 12 months; AF now $195"
+    notes: "Personal card: burns a 5/24 slot. The extra 40K for $20K in 12 months is not modeled. AF rose to $195."
 
   - id: chase_ink_business_cash
     issuer: Chase
@@ -107,8 +107,8 @@ offers:
     af_first_year: 0
     af_ongoing: 0
     url: https://creditcards.chase.com/business-credit-cards/ink/cash
-    last_verified: null
-    source: "Seed — verify"
+    last_verified: 2026-10-04
+    source: "https://upgradedpoints.com/credit-cards/reviews/chase-ink-cash-business-card/welcome-bonus-offer-history/ (secondary): $750 (75K UR) after $6K/3mo; elevated $1,000 ended 2026-09-17"
     notes: "Pairs with a UR-transferring card for full value. Chase velocity is the main risk."
 
   - id: chase_ihg_business
@@ -138,13 +138,13 @@ offers:
     currency: JetBlue
     bonus_points: 50000
     bonus_cash: 0
-    msr: 1000
+    msr: 4000
     msr_months: 3
     af_first_year: 99
     af_ongoing: 99
     url: https://cards.barclaycardus.com/banking/cards/jetblue-business-card/
-    last_verified: null
-    source: "Seed from pipeline (50K target) — verify"
+    last_verified: 2026-10-04
+    source: "https://upgradedpoints.com/credit-cards/reviews/jetblue-business-barclaycard/ (secondary): 50K after $4K in 90 days + paying the $99 AF; 80K offer has expired"
     notes: "Boston + Caribbean. Watch for elevated offers (historically 60-100K)."
 
   - id: citi_strata_premier
@@ -180,9 +180,9 @@ offers:
     af_first_year: 895
     af_ongoing: 895
     url: https://www.americanexpress.com/us/credit-cards/business/business-credit-cards/american-express-business-platinum-credit-card-amex/
-    last_verified: null
-    source: "Seed from pipeline (~250K MR) — verify; often targeted / via referral"
-    notes: "Large MSR — needs a big-spend window. extra_value = credits you'd realistically use."
+    last_verified: 2026-10-04
+    source: "https://upgradedpoints.com/news/amex-business-platinum-card-300k-bonus/ (secondary): as high as 300K after $20K/3mo (personalized), $895 AF"
+    notes: "Amex shows a personalized offer (up to 300K). Check the pre-approval/apply page before committing. The engine uses 250K. Large MSR: needs a big-spend window."
 
   - id: amex_delta_platinum_business
     issuer: Amex
