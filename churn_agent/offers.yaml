@@ -275,6 +275,150 @@ offers:
     source: "Seed — verify"
     notes: "Tracked for completeness; excluded by preference (reports to personal credit, counts toward 5/24)."
 
+  - id: chase_ink_business_preferred
+    issuer: Chase
+    product: Ink Business Preferred
+    type: business
+    network: visa
+    family: ink_preferred
+    currency: UR
+    bonus_points: 100000
+    bonus_cash: 0
+    msr: 8000
+    msr_months: 3
+    af_first_year: 95
+    af_ongoing: 95
+    url: https://creditcards.chase.com/business-credit-cards/ink/business-preferred
+    last_verified: null
+    source: "Business Cards Churn Table (10/3/26) — verify"
+    notes: "Once per lifetime. UR transfers 1:1 to United, Hyatt, Flying Blue."
+
+  - id: chase_united_club_business
+    issuer: Chase
+    product: United Club Business
+    type: business
+    network: visa
+    family: united_club_business
+    currency: United
+    bonus_points: 110000
+    bonus_cash: 0
+    msr: 5000
+    msr_months: 3
+    af_first_year: 695
+    af_ongoing: 695
+    url: https://www.theexplorercard.com/club-business-card
+    last_verified: null
+    source: "Business Cards Churn Table (10/3/26) — verify"
+    notes: "$695 fee; only worth it with lounge use."
+
+  - id: chase_hyatt_business
+    issuer: Chase
+    product: World of Hyatt Business
+    type: business
+    network: visa
+    family: hyatt_business
+    currency: Hyatt
+    bonus_points: 70000
+    bonus_cash: 0
+    msr: 7000
+    msr_months: 3
+    af_first_year: 199
+    af_ongoing: 199
+    url: https://creditcards.chase.com/business-credit-cards/world-of-hyatt-business-credit-card
+    last_verified: null
+    source: "Business Cards Churn Table (10/3/26) — verify"
+    notes: "Low fit for boutique lodging; UR transfers to Hyatt are the better path."
+
+  - id: bofa_business_advantage
+    issuer: BofA
+    product: Business Advantage (Unlimited / Customized / Travel)
+    type: business
+    network: mastercard
+    family: bofa_business_advantage
+    currency: cash
+    bonus_points: 0
+    bonus_cash: 500
+    msr: 5000
+    msr_months: 3
+    af_first_year: 0
+    af_ongoing: 0
+    url: https://www.bankofamerica.com/smallbusiness/credit-cards/
+    last_verified: null
+    source: "Business Cards Churn Table (10/3/26) — verify"
+    notes: "$750 if targeted on BofA's personalized offers page. 3% foreign transaction fee. BofA 2/3/4 rule."
+
+  - id: barclays_wyndham_earner_business
+    issuer: Barclays
+    product: Wyndham Earner Business
+    type: business
+    network: visa
+    family: wyndham_business
+    currency: Wyndham
+    bonus_points: 100000
+    bonus_cash: 0
+    msr: 3500
+    msr_months: 6
+    af_first_year: 149
+    af_ongoing: 149
+    url: https://cards.barclaycardus.com/banking/cards/wyndham-rewards-earner-business-card/
+    last_verified: null
+    source: "Business Cards Churn Table (10/3/26) — verify"
+    notes: "45K after $3K (90 days) + 55K after $500 at Wyndham (180 days). Low fit for your routes."
+
+  - id: us_bank_altitude_connect_business
+    issuer: US Bank
+    product: Business Altitude Connect
+    type: business
+    network: visa
+    family: usb_altitude_connect_business
+    currency: cash
+    bonus_points: 0
+    bonus_cash: 750
+    msr: 6000
+    msr_months: 6
+    af_first_year: 0
+    af_ongoing: 95
+    url: https://www.usbank.com/business-banking/business-credit-cards/altitude-connect-business-credit-card.html
+    last_verified: null
+    source: "Business Cards Churn Table (10/3/26) — verify"
+    notes: "Alternative to Triple Cash (75K points worth $750 as travel or deposit). Pick one US Bank card."
+
+  - id: wells_signify_business_cash
+    issuer: Wells Fargo
+    product: Signify Business Cash
+    type: business
+    network: visa
+    family: wf_signify_business
+    currency: cash
+    bonus_points: 0
+    bonus_cash: 500
+    msr: 5000
+    msr_months: 3
+    af_first_year: 0
+    af_ongoing: 0
+    url: https://www.wellsfargo.com/biz/credit-cards/signify-business-cash/
+    last_verified: null
+    source: "Business Cards Churn Table (10/3/26) — verify"
+    notes: "Wells Fargo denied Mark a personal card in 4/2025."
+
+  - id: amex_marriott_business
+    issuer: Amex
+    product: Marriott Bonvoy Business
+    type: business
+    network: amex
+    family: marriott_amex_business
+    currency: cash
+    bonus_points: 0
+    bonus_cash: 750
+    msr: 6000
+    msr_months: 6
+    af_first_year: 125
+    af_ongoing: 125
+    url: https://www.americanexpress.com/us/credit-cards/business/business-credit-cards/marriott-bonvoy-business-american-express-card/
+    last_verified: null
+    source: "Business Cards Churn Table (10/3/26) — verify"
+    notes: "3 free nights (up to 50K each) after $6K, valued ~$750; 2 more after +$3K. Check Marriott cross-issuer rules vs Mark's Boundless."
+
 # Bank / brokerage bonuses for idle capital. Ranked separately on net
 # annualized return vs. the opportunity_cost_apy benchmark.
 # Fields: bonus_cash, capital, hold_days, base_apy, for (optional).

@@ -78,3 +78,17 @@ def test_report_renders():
     rep = engine.build_report(PROFILE, {"offers": list(OFFERS.values())}, date(2026, 10, 4))
     md = engine.render_markdown(rep)
     assert "Ranked next cards" in md and "5/24 status" in md
+
+
+def test_chase_no_fee_inks_share_a_lifetime():
+    ink_cash = OFFERS["chase_ink_business_cash"]
+    # Alex has Ink Business Unlimited, so the Ink Cash bonus is blocked for good.
+    assert any("lifetime" in r for r in hard_rules(ink_cash, "alex", CARDS, date(2027, 6, 1)))
+    first_ok, _ = engine.earliest_eligible(ink_cash, "alex", CARDS, date(2026, 10, 4))
+    assert first_ok is None
+
+
+def test_msr_cap_excludes_big_spend_cards():
+    profile = dict(PROFILE, spend=dict(PROFILE["spend"], max_msr_per_month=4000))
+    ranked = engine.rank_offers(profile, [OFFERS["amex_business_platinum"]], date(2026, 10, 4))
+    assert all(r.earliest is None and "limit" in r.blocked_now[0] for r in ranked)

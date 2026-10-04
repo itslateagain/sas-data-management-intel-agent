@@ -32,6 +32,14 @@ DEFAULT_OFFERS = HERE / "offers.yaml"
 # Business cards from these issuers show up on personal reports (and count
 # toward Chase 5/24).
 REPORTING_BIZ_ISSUERS = {"Capital One", "Discover", "TD"}
+# Chase Ink bonuses are once per lifetime, and the no-fee Inks share one
+# lifetime (having had Ink Unlimited blocks the Ink Cash bonus and vice versa).
+CHASE_LIFETIME_FAMILIES = {
+    "ink_preferred": {"ink_preferred"},
+    "ink_premier": {"ink_premier"},
+    "ink_cash": {"ink_cash", "ink_unlimited"},
+    "ink_unlimited": {"ink_cash", "ink_unlimited"},
+}
 SEARCH_HORIZON_DAYS = 540
 DEADLINE_HORIZON_DAYS = 60
 WAIT_DISCOUNT_PER_MONTH = 0.97
@@ -180,10 +188,16 @@ def hard_rules(offer: dict, person: str, cards: list[Card], on: date) -> list[st
         n = five24_count(cards, person, on)
         if n >= 5:
             reasons.append(f"Chase 5/24: at {n}/24")
-        lookback = 48 if fam == "sapphire" else 24
-        hit = _family_bonus_within(cards, person, fam, on, lookback)
-        if hit:
-            reasons.append(f"Chase: {fam} bonus within {lookback} mo ({hit.product})")
+        if fam in CHASE_LIFETIME_FAMILIES:
+            had = [c for c in _person_cards(cards, person) if c.issuer == "Chase"
+                   and c.family in CHASE_LIFETIME_FAMILIES[fam] and c.status != "denied"]
+            if had:
+                reasons.append(f"Chase Ink lifetime rule: already had {had[0].product}")
+        else:
+            lookback = 48 if fam == "sapphire" else 24
+            hit = _family_bonus_within(cards, person, fam, on, lookback)
+            if hit:
+                reasons.append(f"Chase: {fam} bonus within {lookback} mo ({hit.product})")
         recent = _issuer_apps_within(cards, person, "Chase", on, 30)
         if offer.get("type") == "business" and any(c.type == "business" for c in recent):
             reasons.append("Chase: business card opened in last 30 days")
@@ -388,6 +402,17 @@ def rank_offers(profile: dict, offers: list[dict], on: date,
                        feasibility=0, plastiq_fee=0, verified=str(o.get("last_verified") or "") or None)
             if o.get("reports_personal") and o.get("type") == "business":
                 r.blocked_now = ["Excluded by preference: business card reports to personal credit"]
+                out.append(r)
+                continue
+            allowed = profile.get("card_types")
+            if allowed and o.get("type", "personal") not in allowed:
+                r.blocked_now = [f"Excluded by preference: {o.get('type', 'personal')} card (tracking {', '.join(allowed)} only)"]
+                out.append(r)
+                continue
+            cap = profile.get("spend", {}).get("max_msr_per_month")
+            need = o.get("msr", 0) / max(o.get("msr_months", 3), 1)
+            if cap and need > cap:
+                r.blocked_now = [f"Excluded by preference: MSR needs ${need:,.0f}/mo, above your ${cap:,.0f}/mo limit"]
                 out.append(r)
                 continue
             r.earliest, r.blocked_now = earliest_eligible(o, person, cards, on)

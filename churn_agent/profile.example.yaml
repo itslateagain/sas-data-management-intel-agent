@@ -22,7 +22,7 @@ people:
 
 valuations_cpp: {AA: 1.2, United: 1.2, Delta: 1.2, Aeroplan: 1.4, JetBlue: 1.3, Southwest: 1.3,
                  Alaska: 1.3, MR: 1.7, UR: 1.7, TY: 1.6, C1: 1.6, Hilton: 0.5, IHG: 0.5,
-                 Marriott: 0.7, Hyatt: 1.7, cash: 1.0}
+                 Marriott: 0.7, Hyatt: 1.7, Wyndham: 0.65, cash: 1.0}
 
 spend:
   regular_monthly: 7000
