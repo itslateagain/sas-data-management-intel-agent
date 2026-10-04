@@ -5,8 +5,8 @@ import yaml
 from churn_agent import engine
 from churn_agent.engine import Card, add_months, five24_count, hard_rules, load_cards
 
-PROFILE = yaml.safe_load((engine.HERE / "profile.example.yaml").read_text())
-OFFERS = {o["id"]: o for o in yaml.safe_load(engine.DEFAULT_OFFERS.read_text())["offers"]}
+PROFILE = yaml.safe_load((engine.HERE / "profile.example.yaml").read_text(encoding="utf-8"))
+OFFERS = {o["id"]: o for o in yaml.safe_load(engine.DEFAULT_OFFERS.read_text(encoding="utf-8"))["offers"]}
 CARDS = load_cards(PROFILE)
 
 
@@ -100,11 +100,31 @@ def test_dashboard_builds_from_example_profile():
     assert "__DATA__" not in html and '"people":["alex","sam"]' in html
 
 
-def test_all_types_ranks_personal_and_reporting_business_cards():
-    profile = dict(PROFILE, card_types=["business"])
-    offers = [OFFERS["chase_aeroplan"], OFFERS["c1_venture_x_business"]]
-    default = engine.rank_offers(profile, offers, date(2026, 10, 4))
-    assert all("preference" in r.blocked_now[0] for r in default)
-    everything = engine.rank_offers(profile, offers, date(2026, 10, 4), all_types=True)
-    assert not any("card (tracking" in b or "reports to personal" in b
-                   for r in everything for b in r.blocked_now)
+
+def test_dashboard_card_preferences_do_not_pre_exclude_offers():
+    from churn_agent.build_dashboard import offers_data
+    profile = dict(PROFILE, card_types=["business"], cards=[])
+    on = date(2026, 10, 4)
+    base = dict(OFFERS["citi_aa_business"], issuer="Example", family="example")
+    offers = [dict(base, id="personal", type="personal"),
+              dict(base, id="reporting", type="business", reports_personal=True),
+              dict(base, id="nonreporting", type="business", reports_personal=False)]
+    # Existing report callers retain their preferences.
+    ranked = engine.rank_offers(profile, offers, on)
+    assert all(r.earliest is None for r in ranked if r.offer_id != "nonreporting")
+    rows = offers_data(profile, offers, on, [])
+    assert [o["reportsPersonal"] for o in rows] == [True, True, False]
+    assert all(p["earliest"] for o in rows for p in o["people"].values())
+
+
+def test_offer_reporting_uses_issuer_fallback_and_product_override():
+    from churn_agent.build_dashboard import offers_data
+    on = date(2026, 10, 4)
+    base = dict(OFFERS["citi_aa_business"], issuer="Capital One")
+    offers = [dict(base, id="fallback"),
+              dict(base, id="exception", reports_personal=False),
+              dict(base, id="personal", type="personal", reports_personal=False)]
+    rows = offers_data(dict(PROFILE, cards=[]), offers, on, [])
+    assert [o["reportsPersonal"] for o in rows] == [True, False, True]
+    assert [engine.offer_as_card(o, "alex", on).counts_toward_5_24()
+            for o in offers] == [True, False, True]

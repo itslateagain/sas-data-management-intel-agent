@@ -1,3 +1,6 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Churn Card Finder</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -139,8 +142,6 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 .tag { font-size: 11.5px; border: 1px solid var(--line); border-radius: 6px; padding: 2px 7px; color: var(--muted); }
 .tag.mc { border-color: var(--accent); color: var(--accent); }
 .tag.unv { border-style: dashed; }
-.tag.rep { border-color: var(--warn); color: var(--warn); }
-.hint { color: var(--muted); font-size: 12px; line-height: 1.4; }
 details { border-top: 1px solid var(--line); padding-top: 10px; font-size: 13.5px; }
 summary { cursor: pointer; font-weight: 600; color: var(--accent); list-style: none; }
 summary::-webkit-details-marker { display: none; }
@@ -309,25 +310,6 @@ details[open] summary::after { content: " –"; }
       </div>
 
       <div class="group">
-        <span class="label">Card type</span>
-        <div class="seg" id="f-ctype" role="group" aria-label="Card type">
-          <button type="button" data-v="all" aria-pressed="true">All</button>
-          <button type="button" data-v="business" aria-pressed="false">Business</button>
-          <button type="button" data-v="personal" aria-pressed="false">Personal</button>
-        </div>
-      </div>
-
-      <div class="group">
-        <span class="label">Personal credit report</span>
-        <div class="seg" id="f-report" role="group" aria-label="Personal credit report">
-          <button type="button" data-v="any" aria-pressed="true">Any</button>
-          <button type="button" data-v="no" aria-pressed="false">Stays off</button>
-          <button type="button" data-v="yes" aria-pressed="false">Reports</button>
-        </div>
-        <small class="hint">"Stays off" keeps 5/24 clean: business cards that don't report to your personal credit report. "Reports" includes personal cards and the business cards that do report (e.g. Capital One).</small>
-      </div>
-
-      <div class="group">
         <label for="f-msr">Max spend per month</label>
         <div class="slider-row"><span>Your limit is <span class="num" id="cap"></span></span><span class="num" id="f-msr-v"></span></div>
         <input type="range" id="f-msr" min="500" max="8000" step="250">
@@ -361,6 +343,25 @@ details[open] summary::after { content: " –"; }
         <label class="toggle"><input type="checkbox" id="f-plastiq"><span>Mortgage-fundable only<small>Mastercard, so Plastiq can pay the mortgage toward the spend</small></span></label>
         <label class="toggle"><input type="checkbox" id="f-nofee"><span>$0 fee in year one</span></label>
         <label class="toggle"><input type="checkbox" id="f-verified"><span>Verified offers only<small>Checked against a source this week</small></span></label>
+      </div>
+
+      <div class="group">
+        <span class="label">Card type</span>
+        <div class="seg" id="f-type" role="group" aria-label="Card type">
+          <button type="button" data-v="all" aria-pressed="true">All</button>
+          <button type="button" data-v="personal" aria-pressed="false">Personal</button>
+          <button type="button" data-v="business" aria-pressed="false">Business</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <span class="label">Counts to personal credit report</span>
+        <div class="seg" id="f-report" role="group" aria-label="Counts to personal credit report">
+          <button type="button" data-v="all" aria-pressed="true">Any</button>
+          <button type="button" data-v="yes" aria-pressed="false">Yes</button>
+          <button type="button" data-v="no" aria-pressed="false">No</button>
+        </div>
+        <small>Account reporting (uses a 5/24 slot), not the application credit inquiry.</small>
       </div>
 
       <div class="group">
@@ -438,9 +439,18 @@ const days = iso => Math.round((new Date(iso + "T12:00:00") - AS_OF) / 864e5);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
 
-const DEFAULTS = { who: "both", when: "6mo", msr: DATA.cap, kinds: [], trips: [], nets: [], plastiq: false, nofee: false, verified: false, ctype: "all", report: "any", q: "", sort: "score" };
+const DEFAULTS = { who: "both", when: "6mo", msr: DATA.cap, kinds: [], trips: [], nets: [], plastiq: false, nofee: false, verified: false, type: "all", report: "all", q: "", sort: "score" };
 let S = { ...DEFAULTS };
-try { const saved = JSON.parse(localStorage.getItem("ccf-state") || "null"); if (saved) { delete saved.personal; S = { ...DEFAULTS, ...saved }; } } catch (e) {}
+try {
+  const saved = JSON.parse(localStorage.getItem("ccf-state") || "null");
+  if (saved) {
+    // Retain other settings, but replace the old business-only toggle with All.
+    const { personal, ...rest } = saved;
+    S = { ...DEFAULTS, ...rest };
+    if (!["all", "personal", "business"].includes(S.type)) S.type = "all";
+    if (!["all", "yes", "no"].includes(S.report)) S.report = "all";
+  }
+} catch (e) {}
 const save = () => { try { localStorage.setItem("ccf-state", JSON.stringify(S)); } catch (e) {} };
 
 /* ── Header ── */
@@ -474,7 +484,8 @@ function bindChips(id, key) {
     const v = b.dataset.v; S[key] = S[key].includes(v) ? S[key].filter(x => x !== v) : [...S[key], v]; render();
   });
 }
-bindSeg("f-who", "who"); bindSeg("f-when", "when"); bindSeg("f-ctype", "ctype"); bindSeg("f-report", "report");
+bindSeg("f-who", "who"); bindSeg("f-when", "when");
+bindSeg("f-type", "type"); bindSeg("f-report", "report");
 bindChips("f-kind", "kinds"); bindChips("f-trip", "trips"); bindChips("f-net", "nets");
 const msr = document.getElementById("f-msr");
 msr.addEventListener("input", () => { S.msr = +msr.value; render(); });
@@ -484,7 +495,7 @@ document.getElementById("f-sort").addEventListener("change", e => { S.sort = e.t
 document.getElementById("reset").addEventListener("click", () => { S = { ...DEFAULTS }; render(); });
 
 function syncControls() {
-  for (const [id, key] of [["f-who", "who"], ["f-when", "when"], ["f-ctype", "ctype"], ["f-report", "report"]])
+  for (const [id, key] of [["f-who", "who"], ["f-when", "when"], ["f-type", "type"], ["f-report", "report"]])
     document.querySelectorAll(`#${id} button`).forEach(b => b.setAttribute("aria-pressed", b.dataset.v === S[key]));
   for (const [id, key] of [["f-kind", "kinds"], ["f-trip", "trips"], ["f-net", "nets"]])
     document.querySelectorAll(`#${id} button`).forEach(b => b.setAttribute("aria-pressed", S[key].includes(b.dataset.v)));
@@ -514,7 +525,7 @@ function render() {
   const q = S.q.trim().toLowerCase();
   const rows = [], ruled = [];
   for (const o of DATA.offers) {
-    if (S.ctype !== "all" && o.type !== S.ctype) continue;
+    if (S.type !== "all" && o.type !== S.type) continue;
     if (S.report === "yes" && !o.reportsPersonal) continue;
     if (S.report === "no" && o.reportsPersonal) continue;
     const v = view(o);
@@ -563,7 +574,7 @@ function card({ o, v, perMo, ros }, i) {
   const tags = [
     o.network === "mastercard" ? `<span class="tag mc">Plastiq OK</span>` : "",
     `<span class="tag">${cap(o.type)}</span>`,
-    o.reportsPersonal ? `<span class="tag rep">On personal report \u00b7 uses 5/24</span>` : `<span class="tag">Off personal report</span>`,
+    `<span class="tag">${o.reportsPersonal ? "Reports to personal credit" : "No personal reporting"}</span>`,
     o.verified ? `<span class="tag">Checked ${fmtD(o.verified)}</span>` : `<span class="tag unv">Unverified</span>`,
     ...o.goals.slice(0, 3).map(g => `<span class="tag">${esc(SHORT(g))}</span>`)
   ].join("");

@@ -124,7 +124,8 @@ def offer_as_card(offer: dict, person: str, on: date) -> Card:
         person=person, issuer=offer["issuer"], product=offer["product"],
         type=offer.get("type", "personal"), family=offer.get("family", ""),
         tier=offer.get("tier", 1), opened=on, status="open",
-        counts_5_24=True if offer.get("reports_personal") else None,
+        counts_5_24=(True if offer.get("type", "personal") == "personal"
+                     else offer.get("reports_personal")),
         simulated=True,
     )
 
@@ -391,10 +392,8 @@ def _score_at(o, person, cards, profile, on, when) -> dict:
 
 
 def rank_offers(profile: dict, offers: list[dict], on: date,
-                cards: list[Card] | None = None, all_types: bool = False) -> list[Ranked]:
-    """Rank every offer for every person. all_types=True ignores the card-type
-    preferences (card_types, business cards that report to personal credit) so
-    the dashboard can show them and let its filters decide."""
+                cards: list[Card] | None = None, *,
+                apply_card_preferences: bool = True) -> list[Ranked]:
     cards = cards if cards is not None else load_cards(profile)
     people = list(profile.get("people", {}).keys())
     out = []
@@ -403,12 +402,12 @@ def rank_offers(profile: dict, offers: list[dict], on: date,
             r = Ranked(offer_id=o["id"], person=person, product=o["product"],
                        issuer=o["issuer"], earliest=None, net_value=0, score=0,
                        feasibility=0, plastiq_fee=0, verified=str(o.get("last_verified") or "") or None)
-            if not all_types and o.get("reports_personal") and o.get("type") == "business":
+            if apply_card_preferences and o.get("reports_personal") and o.get("type") == "business":
                 r.blocked_now = ["Excluded by preference: business card reports to personal credit"]
                 out.append(r)
                 continue
             allowed = profile.get("card_types")
-            if not all_types and allowed and o.get("type", "personal") not in allowed:
+            if apply_card_preferences and allowed and o.get("type", "personal") not in allowed:
                 r.blocked_now = [f"Excluded by preference: {o.get('type', 'personal')} card (tracking {', '.join(allowed)} only)"]
                 out.append(r)
                 continue
@@ -586,8 +585,8 @@ def main(argv=None):
     if path == DEFAULT_PROFILE and not path.exists():
         print(f"(no {path.name} — using {EXAMPLE_PROFILE.name})\n")
         path = EXAMPLE_PROFILE
-    profile = yaml.safe_load(path.read_text())
-    offers = yaml.safe_load(args.offers.read_text())
+    profile = yaml.safe_load(path.read_text(encoding="utf-8"))
+    offers = yaml.safe_load(args.offers.read_text(encoding="utf-8"))
     rep = build_report(profile, offers, args.as_of)
     if args.format == "json":
         print(json.dumps(rep, default=_json_default, indent=2))

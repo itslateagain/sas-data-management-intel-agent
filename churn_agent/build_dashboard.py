@@ -33,7 +33,9 @@ def _progress(start: date, end: date, on: date) -> float:
 
 
 def offers_data(profile: dict, offers: list[dict], on: date, cards) -> list[dict]:
-    ranked = e.rank_offers(profile, offers, on, cards, all_types=True)
+    # The interactive finder controls card type/reporting itself. Keep issuer
+    # eligibility and spend limits, but do not pre-exclude these categories.
+    ranked = e.rank_offers(profile, offers, on, cards, apply_card_preferences=False)
     by_id: dict[str, dict] = {}
     for r in ranked:
         by_id.setdefault(r.offer_id, {})[r.person] = dict(
@@ -45,7 +47,7 @@ def offers_data(profile: dict, offers: list[dict], on: date, cards) -> list[dict
     for o in offers:
         cur = o.get("currency", "cash")
         out.append(dict(
-            id=o["id"], issuer=o["issuer"], product=o["product"], type=o.get("type"),
+            id=o["id"], issuer=o["issuer"], product=o["product"], type=o.get("type", "personal"),
             network=o.get("network"), currency=cur, points=o.get("bonus_points", 0),
             cash=o.get("bonus_cash", 0), extra=o.get("extra_value", 0),
             bonusValue=round(o.get("bonus_points", 0) * cpp.get(cur, 1) / 100
@@ -54,7 +56,7 @@ def offers_data(profile: dict, offers: list[dict], on: date, cards) -> list[dict
             af1=o.get("af_first_year", 0), af=o.get("af_ongoing", 0), url=o.get("url"),
             verified=str(o["last_verified"]) if o.get("last_verified") else None,
             source=o.get("source"), notes=o.get("notes", ""),
-            reportsPersonal=bool(o.get("reports_personal")) or o.get("type", "personal") == "personal",
+            reportsPersonal=e.offer_as_card(o, "", on).counts_toward_5_24(),
             goals=[g["where"] for g in profile.get("travel_goals", []) if cur in g.get("programs", [])],
             people=by_id.get(o["id"], {})))
     return out
@@ -151,7 +153,7 @@ def build(profile: dict, offers_doc: dict, on: date) -> str:
         wallet=wallet_data(profile),
     )
     blob = json.dumps(data, separators=(",", ":")).replace("</", "<\\/")
-    return TEMPLATE.read_text().replace("__DATA__", blob)
+    return TEMPLATE.read_text(encoding="utf-8").replace("__DATA__", blob)
 
 
 def main(argv=None):
@@ -162,8 +164,8 @@ def main(argv=None):
     ap.add_argument("--out", type=Path, required=True)
     args = ap.parse_args(argv)
     path = args.profile if args.profile.exists() else e.EXAMPLE_PROFILE
-    html = build(yaml.safe_load(path.read_text()), yaml.safe_load(args.offers.read_text()), args.as_of)
-    args.out.write_text(html)
+    html = build(yaml.safe_load(path.read_text(encoding="utf-8")), yaml.safe_load(args.offers.read_text(encoding="utf-8")), args.as_of)
+    args.out.write_text(html, encoding="utf-8")
     print(f"wrote {args.out} ({len(html):,} bytes) from {path.name}")
 
 
