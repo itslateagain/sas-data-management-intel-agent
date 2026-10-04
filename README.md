@@ -86,9 +86,3 @@ Gmail requires an App Password when 2FA is enabled (which it should be):
 3. Use that 16-character password as `EMAIL_PASSWORD`
 
 If you use a different mail provider, set `SMTP_HOST` and `SMTP_PORT` in `.env`.
-
----
-
-## Also in this repo: Churn Agent
-
-`churn_agent/` holds a separate weekly credit-card churning agent. See [churn_agent/README.md](churn_agent/README.md).
