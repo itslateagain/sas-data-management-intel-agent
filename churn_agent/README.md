@@ -3,11 +3,12 @@
 A personal weekly credit-card churning agent. Every Sunday morning (ET) it:
 
 1. Re-reads the live **churn tracker Sheet** and **Churning Plays Doc** in Google Drive
-2. Checks current sign-up offers on the issuers' sites, falling back to recent secondary sources when a site is blocked, and looks for new elevated offers and bank bonuses
-3. Runs a deterministic rules engine for 5/24, issuer rules, MSR capacity, deadlines, and a simulation of your planned pipeline
-4. Recommends the **next best move** and **ranks the next cards to get**, with the best window for each
-5. **Overwrites your Business Cards Churn Table** (Google Sheet) with current offers, eligibility, and the recommended order. It only writes input cells; your formulas keep computing.
-6. Saves `Churn Agent Weekly — <date>` to Google Drive and sends the summary as a push and email notification
+2. Refreshes points balances and card statuses from statement emails in Gmail (read only)
+3. Checks current sign-up offers on the issuers' sites, falling back to recent secondary sources when a site is blocked, and looks for new elevated offers and bank bonuses
+4. Runs a deterministic rules engine for 5/24, issuer rules, MSR capacity, deadlines, and a simulation of your planned pipeline
+5. Recommends the **next best move** and **ranks the next cards to get**, with the best window for each
+6. **Overwrites your Business Cards Churn Table** (Google Sheet) with current offers, eligibility, and the recommended order. It only writes input cells; your formulas keep computing.
+7. Republishes the Churn Card Finder page and saves `Churn Agent Weekly — <date>` to Google Drive and sends the summary as a push and email notification
 
 It never applies for cards, moves money, or edits your card-tracker Sheet or Churning Plays Doc. It tells you what to change there. The churn table is the one file it updates.
 
@@ -19,6 +20,7 @@ It never applies for cards, moves money, or edits your card-tracker Sheet or Chu
 | `profile.example.yaml` | Template and test fixture with a fictional household. The **real** profile lives in your private Google Drive (`churn_agent_profile.yaml`). The run downloads it to `profile.yaml`, which is gitignored because this repo is public. |
 | `offers.yaml` | Candidate cards with bonus, MSR, fee, and network, plus `last_verified` and source. The weekly run refreshes it. |
 | `engine.py` | Rules and ranking engine (5/24, Chase, Amex, Citi, Cap One, BofA, and Barclays rules; MSR feasibility; Plastiq; deadlines; pipeline check) |
+| `build_dashboard.py`, `dashboard/template.html` | Builds the Churn Card Finder page (points wallet, plays in flight, recent opens, filterable card finder) |
 | `test_engine.py` | Tests for the rules |
 | `reports/` | Local scratch for reports (gitignored). Reports are archived in Drive. |
 

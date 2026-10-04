@@ -92,3 +92,9 @@ def test_msr_cap_excludes_big_spend_cards():
     profile = dict(PROFILE, spend=dict(PROFILE["spend"], max_msr_per_month=4000))
     ranked = engine.rank_offers(profile, [OFFERS["amex_business_platinum"]], date(2026, 10, 4))
     assert all(r.earliest is None and "limit" in r.blocked_now[0] for r in ranked)
+
+
+def test_dashboard_builds_from_example_profile():
+    from churn_agent import build_dashboard
+    html = build_dashboard.build(PROFILE, {"offers": list(OFFERS.values())}, date(2026, 10, 4))
+    assert "__DATA__" not in html and '"people":["alex","sam"]' in html
